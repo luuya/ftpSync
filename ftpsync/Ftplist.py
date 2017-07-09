@@ -102,7 +102,7 @@ class FTP_NL:
         for name in list:
             logging.debug( name)
 
-#返回时间
+#返回符合条件的格式化后的时间
 def getyesterday():
     time = datetime.datetime.now().timetuple()
     #如果昨天的日期天数位不超过两位的话补“0”
