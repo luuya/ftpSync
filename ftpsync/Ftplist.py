@@ -31,6 +31,9 @@ class FTP_NL:
                     fileNameList.append(name)
             except (IndexError),e:
                 logging.debug(e)
+        if(len(fileNameList)==0):
+            logging.debug("没有符合条件的文件，等待下次程序启动")
+            print "没有符合条件的文件，等待下次程序启动"
         return fileNameList
 
 
@@ -45,12 +48,14 @@ class FTP_NL:
             print "ftp连接成功"
         except(Exception),e:
             logging.debug(e)
+            print "连接失败"
         try:
             ftp.login(self.username, self.password)  # 登录，如果匿名登录则用空串代替即可
             logging.debug( "ftp登陆成功")
             print "ftp登陆成功"
         except(Exception),e:
             logging.debug( e)
+            print "登陆失败"
         return ftp
 
     #下载文件
@@ -68,15 +73,21 @@ class FTP_NL:
                     fileStatus = False
                     fp = open(os.path.join(localpath,filename), 'wb')  # 以写模式在本地打开文件
                     fileStatus = ftp.retrbinary('RETR %s' %(filename), fp.write)  # 接收服务器上文件并写入本地文件
-                    logging.debug("下载成功-->"+filename)
-                    print "下载成功-->"+filename
+                    try:
+                        fp.close()
+                    except(IOError,Exception),e:
+                        logging.debug(e)
+                        print e
+                    logging.debug("download-->"+filename)
+                    print "download-->"+filename
                     #把成功的文件名添加到数组中去
                     if (fileStatus=='226 Transfer complete.'):
                         self.deleteFile.append(filename)
             except (IndexError,Exception) ,e:
                 logging.debug( e)
-        fp.close()
-        ftp.quit()  # 退出ftp服务器
+            finally:
+                ftp.quit()  # 退出ftp服务器
+                logging.debug("断开与服务器连接")
 
 
     def deleteRemotepathFile(self,remotepath):
@@ -85,14 +96,15 @@ class FTP_NL:
         try:
             for deletename in self.deleteFile:
                 ftp.delete(deletename)
-                logging.debug("已删除-->"+deletename)
-                print "已删除-->"+deletename
+                logging.debug("delete-->"+deletename)
+                print "delete-->"+deletename
         except(IndexError,Exception),e:
             logging.debug( e)
-            logging.debug( "删除失败-->"+deletename)
+            logging.debug( "delete failed-->"+deletename)
         finally:
             self.deleteFile = []
             ftp.quit()  # 退出ftp服务器
+            logging.debug("断开与服务器连接")
 
     #测试连接方法
     def testConnect(self,remotepath='/'):
@@ -106,7 +118,7 @@ class FTP_NL:
 def getyesterday():
     time = datetime.datetime.now().timetuple()
     #如果昨天的日期天数位不超过两位的话补“0”
-    if((time.tm_mday-1)<9):
+    if((time.tm_mday-1)<10):
         day = "0"+str(time.tm_mday-1)
     yesterday = str(time.tm_year) + '-' + str(time.tm_mon)  + '-' + day
     return yesterday

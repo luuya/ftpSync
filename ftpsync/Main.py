@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Ftplist import FTP_NL
 
 class START:
