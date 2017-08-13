@@ -114,23 +114,27 @@ class FTP_NL:
         for name in list:
             logging.debug( name)
 
-#返回符合条件的格式化后的时间
+#返回符合条件的格式化后的时间(妈的，搞死人)
 def getyesterday():
-    time = datetime.datetime.now().timetuple()
-    #如果昨天的日期天数位不超过两位的话补“0”
-    if((time.tm_mday-1)<10):
-        day = "0"+str(time.tm_mday-1)
-    yesterday = str(time.tm_year) + '-' + str(time.tm_mon)  + '-' + day
+    today = datetime.date.today()
+    unt_yesterday = today - datetime.timedelta(days=1)
+    #转换为字符，分片处理
+    unt_yesterday = str(unt_yesterday)
+    (timeyear, timemon, timeday) = unt_yesterday.split("-")
+    #月份去0处理
+    timemon = int(timemon)
+    #返回格式yyyy-mm-dd
+    yesterday = str(timeyear)+'-'+str(timemon)+'-'+str(timeday)
     return yesterday
 
-#测试方法
-def test():
-    localpath = "D:\\ftpdown"
-    remotepath = "receive/tccklclgl"
-    ftp = FTP_NL('192.168.0.74','ftpu','ftp','32121')
-    ftp.downLoadFile(localpath, remotepath)
+
 
 
 if __name__ == '__main__':
-
+    # 测试方法
+    def test():
+        localpath = "D:\\ftpdown"
+        remotepath = "receive/tccklclgl"
+        ftp = FTP_NL('192.168.0.74', 'ftpu', 'ftp', '32121')
+        ftp.downLoadFile(localpath, remotepath)
     test()
